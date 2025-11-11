@@ -1,18 +1,15 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 
+CSV_PATH = "dataset/movies.csv"
 
 def main():
-
+    
     # Loading dataset.
-    data = sns.load_dataset("penguins")
+    data = pd.read_csv(CSV_PATH)
 
     print(data.head())
-    # print(data.info())
-    # print(data.describe())
-    # print(data.isna().sum())
 
 
 if __name__ == "__main__":
