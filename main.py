@@ -9,7 +9,7 @@ def main():
     # Loading dataset.
     data = pd.read_csv(CSV_PATH)
 
-    print(data.head())
+    print(data.describe())
 
 
 if __name__ == "__main__":
