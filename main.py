@@ -5,6 +5,7 @@ from sklearn.linear_model import LinearRegression
 
 CSV_PATH = "dataset/tip.csv"
 
+pd.set_option('display.max_rows', None)
 
 def main():
     try:
@@ -21,7 +22,7 @@ def main():
         # data = data.dropna()
         # data = pd.get_dummies(data, drop_first=True)
 
-        print(data.head())
+        print(data)
 
         # Steinmejers error handling
     except KeyboardInterrupt:
