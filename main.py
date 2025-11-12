@@ -4,12 +4,21 @@ import matplotlib.pyplot as plt
 
 CSV_PATH = "dataset/movies.csv"
 
+
 def main():
-    
+
     # Loading dataset.
     data = pd.read_csv(CSV_PATH)
 
-    print(data.describe())
+    features = ["",]
+    target = "species"
+    data = data[features + [target]]
+    print(data.head())
+
+    data = data.dropna()
+    data = pd.get_dummies(data, drop_first=True)
+
+    print(data.head(20))
 
 
 if __name__ == "__main__":
