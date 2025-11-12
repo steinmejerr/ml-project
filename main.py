@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
 
 CSV_PATH = "dataset/tip.csv"
 
@@ -22,6 +23,7 @@ def main():
 
         print(data.head())
 
+        # Steinmejers error handling
     except KeyboardInterrupt:
         print("\nProgram has been stopped by user. (CTRL + C)")
     except Exception as e:
