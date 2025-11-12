@@ -7,7 +7,8 @@ CSV_PATH = "dataset/tip.csv"
 
 def main():
     try:
-
+        print("\n")
+        
         # Loading dataset.
         data = pd.read_csv(CSV_PATH)
 
@@ -22,11 +23,11 @@ def main():
         print(data.head())
 
     except KeyboardInterrupt:
-        print("\n🛑 Programmet blev stoppet af brugeren (Ctrl + C).")
+        print("\nProgram has been stopped by user. (CTRL + C)")
     except Exception as e:
-        print(f"\n⚠️ Fejl: {e}")
+        print(f"\nError: {e}")
     finally:
-        print("\n👋 Programmet er afsluttet.")
+        print("\n")
 
 
 if __name__ == "__main__":
