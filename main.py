@@ -23,7 +23,9 @@ def main():
 
         # Loading dataset.
         data = pd.read_csv(CSV_PATH)
-
+        
+        print(f"Number of (NaN):\n{data.isna().sum()}")
+        
         # Dropping all "Not A Number" (NaN)
         data = data.dropna()
 
@@ -40,9 +42,10 @@ def main():
         # Train it (fit)
         model = LinearRegression().fit(X_train, y_train)
 
-        # Initialize intercept and slope. Calculate and add result values.
+        # Initialize model paramters. Calculate and add result values.
         intercept = float(model.intercept_)
-        slope = float(model.coef_[0])
+        slope_tb = float(model.coef_[0])
+        slope_s = float(model.coef_[1])
 
         # Evaluate training and testdata.
         def evaluate(model, X_tr, X_te, y_tr, y_te):
@@ -60,16 +63,17 @@ def main():
 
             # Print Evaluation Output
             print(f"RMSE (Train): {rmse_tr:.4f}")
-            print(f"RMSE (Test):  {rmse_te:.4f}")
-            print(f"R2 (Train):   {r2_tr:.4f}")
-            print(f"R2 (Test):    {r2_te:.4f}\n")
+            print(f"RMSE (Test): {rmse_te:.4f}")
+            print(f"R2 (Train): {r2_tr:.4f}")
+            print(f"R2 (Test): {r2_te:.4f}\n")
             print("\n")
 
         # Print Output
         print(data.head())
         print("\n")
-        print(f"Slope: {slope:.2f}")
-        print(f"Intercept: {intercept:.2f}")
+        print(f"Slope (Total Bill): {slope_tb:.4f}")
+        print(f"Slope (Size): {slope_s:.4f}")
+        print(f"Intercept: {intercept:.4f}")
         evaluate(model, X_train, X_test, y_train, y_test)
         # visualizeCorrelation(data["total_bill"], data["tip"])
         
