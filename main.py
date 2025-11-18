@@ -1,15 +1,16 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.ensemble import RandomForestRegressor
 
 
 CSV_PATH = "dataset/tip.csv"
 
+
 # Visualizing Correlation (Not a must have, but just to visaulize)
-def visualizeCorrelation(tb, t):
+def visualize_correlation(tb, t):
     # Visualize Correlation between total bill and tip.
     plt.scatter(tb, t)
     plt.xlabel("Total Bill")
@@ -17,24 +18,37 @@ def visualizeCorrelation(tb, t):
     plt.title("Correlation between total bill and tip.")
     plt.show()
 
+
+# Boxplot to check for outliers
+def visualize_boxplot(data):
+    plt.boxplot(data["total_bill"])
+    plt.title("Boxplot of Total Bill")
+    plt.ylabel("Total Bill")
+    plt.show()
+
+
 def main():
     try:
         print("\n")
 
         # Loading dataset.
         data = pd.read_csv(CSV_PATH)
-        
+
         # Lets get an insight of the dataset with a row count of 10.
         print("| Insight of the dataset")
         print(f"{data.head(10)}\n\n")
-        
-        print("- Preparing data.")
-        print(f"| Number of (NaN):\n{data.isna().sum()}")
-        
+
+        # Display NaN's
+        print(f"| Not a numbers:\n{data.isna().sum()}")
         # Dropping all "Not A Number" (NaN)
+        before_nans = len(data)
         data = data.dropna()
-        
-        print("| Dropped rows including NaN's (No Value).\n")
+        after_nans = len(data)
+        print(f"Dropped {before_nans - after_nans} rows of NaN.\n\n")
+
+        # If there would be need for One-Hot Encodeing
+        # data = pd.get_dummies(data, drop_first=True)
+        # print(f"| One-Hot Encoded\n{data.head(10)}\n\n")
 
         # Specifying features and targets, to predict the tip size.
         X = data[["total_bill", "size"]]
@@ -45,14 +59,47 @@ def main():
             X, y, test_size=0.2, random_state=69
         )
 
-        # Initialize the Linear Regression model.
-        # Train it (fit)
-        model = LinearRegression().fit(X_train, y_train)
+        # Initialize the Random Forest Regression model and train it
+        # Overfitting
+        # model = RandomForestRegressor(
+        #     n_estimators=200,
+        #     random_state=69,
+        #     max_depth=None,
+        #     min_samples_split=2,
+        #     min_samples_leaf=1
+        # )
 
-        # Initialize model paramters. Calculate and add result values.
-        intercept = float(model.intercept_)
-        slope_tb = float(model.coef_[0])
-        slope_s = float(model.coef_[1])
+        # Underfitting
+        # model = RandomForestRegressor(
+        #     n_estimators=10,
+        #     random_state=69,
+        #     max_depth=2,
+        #     min_samples_split=20,
+        #     min_samples_leaf=40
+        # )
+
+        model = RandomForestRegressor(
+            n_estimators=240,
+            random_state=69,
+            max_depth=5,
+            min_samples_split=5,
+            min_samples_leaf=10,
+        )
+        
+        print("| Cross-validation")
+        cv_scores = cross_val_score(
+            model,
+            X,
+            y,
+            cv=5,
+            scoring="neg_mean_squared_error"
+        )
+        cv_mse_mean = -cv_scores.mean()
+        cv_rmse_mean = np.sqrt(cv_mse_mean)
+
+        print("Cross-validation RMSE (mean over 5 folds): {:.4f}\n".format(cv_rmse_mean))
+
+        model.fit(X_train, y_train)
 
         # Evaluate training and testdata.
         def evaluate(model, X_tr, X_te, y_tr, y_te):
@@ -72,27 +119,26 @@ def main():
             print(f"RMSE (Train): {rmse_tr:.4f}")
             print(f"RMSE (Test): {rmse_te:.4f}")
             print(f"R2 (Train): {r2_tr:.4f}")
-            print(f"R2 (Test): {r2_te:.4f}\n")
-            print("\n")
+            print(f"R2 (Test): {r2_te:.4f}")
+            print("-----------------------")
 
-        # Print Output
         print("\n| Accuracy and other Information")
-        print(f"Slope (Total Bill): {slope_tb:.4f}")
-        print(f"Slope (Size): {slope_s:.4f}")
-        print(f"Intercept: {intercept:.4f}")
         evaluate(model, X_train, X_test, y_train, y_test)
-        # visualizeCorrelation(data["total_bill"], data["tip"])
-        
-        
-        
-        # Steinmejers Error Handling
+        # Feature importance (hvor meget hver feature betyder)
+        importances = model.feature_importances_
+        print(f"Feature Importances:")
+        print(f"total_bill: {importances[0]:.4f}")
+        print(f"size: {importances[1]:.4f}")
+        print("\n")
+        # visualize_boxplot(data)
+        # visualize_correlation(data["total_bill"], data["tip"])
+
+
+    # Steinmejers Error Handling
     except KeyboardInterrupt:
         print("\nProgram has been stopped by user. (CTRL + C)")
     except Exception as e:
         print(f"\nError: {e}")
-    finally:
-        print("\n")
-
-
+        
 if __name__ == "__main__":
     main()
