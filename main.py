@@ -24,10 +24,17 @@ def main():
         # Loading dataset.
         data = pd.read_csv(CSV_PATH)
         
-        print(f"Number of (NaN):\n{data.isna().sum()}")
+        # Lets get an insight of the dataset with a row count of 10.
+        print("| Insight of the dataset")
+        print(f"{data.head(10)}\n\n")
+        
+        print("- Preparing data.")
+        print(f"| Number of (NaN):\n{data.isna().sum()}")
         
         # Dropping all "Not A Number" (NaN)
         data = data.dropna()
+        
+        print("| Dropped rows including NaN's (No Value).\n")
 
         # Specifying features and targets, to predict the tip size.
         X = data[["total_bill", "size"]]
@@ -69,8 +76,7 @@ def main():
             print("\n")
 
         # Print Output
-        print(data.head())
-        print("\n")
+        print("\n| Accuracy and other Information")
         print(f"Slope (Total Bill): {slope_tb:.4f}")
         print(f"Slope (Size): {slope_s:.4f}")
         print(f"Intercept: {intercept:.4f}")
