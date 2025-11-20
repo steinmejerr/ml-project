@@ -46,27 +46,33 @@ def main():
         after_nans = len(data)
         print(f"Dropped {before_nans - after_nans} rows of NaN.\n\n")
 
-        # If there would be need for One-Hot Encodeing
-        # data = pd.get_dummies(data, drop_first=True)
-        # print(f"| One-Hot Encoded\n{data.head(10)}\n\n")
+        # One-Hot Encoding af kategoriske kolonner
+        # (sex, smoker, day, time -> bliver til tal-kolonner)
+        data = pd.get_dummies(
+            data, columns=["sex", "smoker", "day", "time"], drop_first=True
+        )
+        print("| One-Hot Encoded (first 10 rows)")
+        print(f"{data.head(10)}\n\n")
 
         # Specifying features and targets, to predict the tip size.
-        X = data[["total_bill", "size"]]
+        # y er stadig 'tip', X er alle de andre kolonner
         y = data["tip"]
+        X = data.drop(columns=["tip"])
 
         # Split the data into training and testing
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=67
+            X, y, test_size=0.2, random_state=69
         )
 
         # Initialize the Random Forest Regression model and train it
+
         # Overfitting
         # model = RandomForestRegressor(
-        #     n_estimators=200,
+        #     n_estimators=300,
         #     random_state=69,
         #     max_depth=None,
         #     min_samples_split=2,
-        #     min_samples_leaf=1
+        #     min_samples_leaf=1,
         # )
 
         # Underfitting
@@ -75,29 +81,27 @@ def main():
         #     random_state=69,
         #     max_depth=2,
         #     min_samples_split=20,
-        #     min_samples_leaf=40
+        #     min_samples_leaf=40,
         # )
 
         model = RandomForestRegressor(
-            n_estimators=240,
+            n_estimators=200,
             random_state=69,
             max_depth=5,
             min_samples_split=5,
             min_samples_leaf=10,
         )
-        
+
         print("| Cross-validation")
-        cv_scores = cross_val_score(
-            model,
-            X,
-            y,
-            cv=5,
-            scoring="neg_mean_squared_error"
-        )
+        cv_scores = cross_val_score(model, X, y, cv=5, scoring="neg_mean_squared_error")
+
+        # From negative to positive
         cv_mse_mean = -cv_scores.mean()
         cv_rmse_mean = np.sqrt(cv_mse_mean)
 
-        print("Cross-validation RMSE (mean over 5 folds): {:.4f}\n".format(cv_rmse_mean))
+        print(
+            "Cross-validation RMSE (mean over 5 folds): {:.4f}\n".format(cv_rmse_mean)
+        )
 
         model.fit(X_train, y_train)
 
@@ -124,21 +128,22 @@ def main():
 
         print("\n| Accuracy and other Information")
         evaluate(model, X_train, X_test, y_train, y_test)
+
         # Feature importance (hvor meget hver feature betyder)
         importances = model.feature_importances_
-        print(f"Feature Importances:")
-        print(f"total_bill: {importances[0]:.4f}")
-        print(f"size: {importances[1]:.4f}")
+        print("Feature Importances:")
+        for col_name, importance in zip(X.columns, importances):
+            print(f"{col_name}: {importance:.4f}")
         print("\n")
         # visualize_boxplot(data)
         # visualize_correlation(data["total_bill"], data["tip"])
-
 
     # Steinmejers Error Handling
     except KeyboardInterrupt:
         print("\nProgram has been stopped by user. (CTRL + C)")
     except Exception as e:
         print(f"\nError: {e}")
-        
+
+
 if __name__ == "__main__":
     main()
